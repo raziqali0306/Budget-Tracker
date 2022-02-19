@@ -8,15 +8,19 @@ function Login() {
         event.preventDefault()
         const username = event.target[0].value;
         const password = event.target[1].value;
+        console.log(username, password )
         axios.post(LOGIN_API , {
             "username" : username,
             "password" : password,
-        })
+        }, null)
         .then((response) => {
             if(response.status === 200) {
                 console.log("initial accesstoken", response.data.accesstoken)
                 localStorage.setItem('budget-app-accesstoken', response.data.accesstoken);
                 window.location.href='/';
+            }
+            else {
+                console.log("else block");
             }
         })
         .catch((err) => {

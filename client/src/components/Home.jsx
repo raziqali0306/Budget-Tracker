@@ -28,54 +28,7 @@ function Home() {
     window.location.href='/login'
   }
 
-  // add-item
-  const addItem = (event) => {
-    event.preventDefault()
-    const accesstoken = localStorage.getItem('budget-app-accesstoken');
-    console.log(accesstoken)
-    axios.post(ADD_API, {
-      "category" : event.target[0].value,
-      "desc" : event.target[1].value,
-      "amount" : event.target[2].value
-    }, {
-      method: 'POST',
-      headers: {
-        accesstoken: accesstoken,
-      },
-
-    })
-    .then((response) => {
-        if(response.status === 200) {
-          console.log(response)
-        }
-    })
-    .catch((err) => {
-        console.log(err);
-    })
-  }
-
-  // delete-item
-  const deleteItem = (_id) => {
-    console.log(_id);
-    const accesstoken = localStorage.getItem('budget-app-accesstoken') ;
-    console.log(accesstoken);
-    axios.post(DELETE_API, null, {
-      method: 'POST',
-      headers: {
-        accesstoken: accesstoken,
-        _id: _id
-      }
-    })
-    .then(res => console.log(res))
-    .catch(err => console.log("catch block", err))
-  }
-
-  // USEEFFECT //
-  useEffect(() => {
-    if(!localStorage.getItem('budget-app-accesstoken')) {
-      window.location.href='/login';
-    }
-    
+  const getData = () => {
     const accesstoken = localStorage.getItem('budget-app-accesstoken') ;
     fetch(GETALL_API, {
       method: 'GET',
@@ -99,7 +52,62 @@ function Home() {
       setExpenseItems(updatedExpenses)
       setLoading(false)
     })
-  }, [incomeItems, expenseItems])
+  }
+
+  // add-item
+  const addItem = (event) => {
+    event.preventDefault()
+    const accesstoken = localStorage.getItem('budget-app-accesstoken');
+    console.log(accesstoken)
+    axios.post(ADD_API, {
+      "category" : event.target[0].value,
+      "desc" : event.target[1].value,
+      "amount" : event.target[2].value
+    }, {
+      method: 'POST',
+      headers: {
+        accesstoken: accesstoken,
+      },
+
+    })
+    .then((response) => {
+        if(response.status === 200) {
+          console.log(response)
+          getData()
+        }
+    })
+    .catch((err) => {
+        console.log(err);
+    })
+  }
+
+  // delete-item
+  const deleteItem = (_id) => {
+    console.log(_id);
+    const accesstoken = localStorage.getItem('budget-app-accesstoken') ;
+    console.log(accesstoken);
+    axios.post(DELETE_API, null, {
+      method: 'POST',
+      headers: {
+        accesstoken: accesstoken,
+        _id: _id
+      }
+    })
+    .then(res => {
+      if(res.status === 200) {
+        getData();
+      }
+    })
+    .catch(err => console.log("catch block", err))
+  }
+
+  // USEEFFECT //
+  useEffect(() => {
+    if(!localStorage.getItem('budget-app-accesstoken')) {
+      window.location.href='/login';
+    }
+    getData();
+  }, [])
 
   useEffect(() => {
     let newIn = 0, newEx = 0;
