@@ -1,17 +1,56 @@
 const router = require('express').Router();
 const Budget = require('../models/budjetModel.js');
+const jwt = require('jsonwebtoken');
+
+/////////////////////////////
+//       JWT VERIFY        //
+/////////////////////////////
+
+const verify = (req, res, next) => {
+  const accesstoken = req.headers.accesstoken;
+  if (accesstoken) {
+    jwt.verify(accesstoken, process.env.PAYLOAD, (err, user) => {
+      if (err) {
+        console.log(err);
+        res.status(401).json("You aren't authenticated!");
+      }
+      req.user = user;
+      next();
+    });
+  } else {
+    return res.status(403).json('Token is invalid');
+  }
+};
 
 /////////////////////////////
 //     CRUD OPERATIONS     //
 /////////////////////////////
 
-router.post('/add', async (req, res) => {
+router.get('/getAll', verify, async (req, res) => {
   try {
+    const items = await Budget.find({ username: req.user.username });
+    const response = {
+      lenght: items.length,
+      items: items,
+    };
+    res.status(200).json(response);
+  } catch (err) {
+    res.status(500).json(err);
+  }
+});
+
+router.post('/add', verify, async (req, res) => {
+  try {
+    console.log(req.body.category);
+    console.log(req.body.desc);
+    console.log(req.body.amount);
+    console.log(req.headers.accesstoken);
+
     const item = new Budget({
       category: req.body.category,
       amount: req.body.amount,
       desc: req.body.desc,
-      username: req.body.username,
+      username: req.user.username,
     });
     item
       .save()
@@ -26,25 +65,14 @@ router.post('/add', async (req, res) => {
   }
 });
 
-router.post('/delete', async (req, res) => {
+router.post('/delete', verify, async (req, res) => {
+  console.log('im here in delete');
   try {
+    console.log(req.headers._id);
     const item = await Budget.findByIdAndDelete({
-      _id: req.body._id,
+      _id: req.headers._id,
     });
     res.status(200).json('deleted successfully!');
-  } catch (err) {
-    res.status(500).json(err);
-  }
-});
-
-router.get('/getAll', async (req, res) => {
-  try {
-    const items = await Budget.find({ username: req.headers.username });
-    const response = {
-      lenght: items.length,
-      items: items,
-    };
-    res.status(200).json(response);
   } catch (err) {
     res.status(500).json(err);
   }

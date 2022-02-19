@@ -1,10 +1,6 @@
-import axios from 'axios';
 import React from 'react';
 import './Home.css'
 export default function Budget(props) {
-
-
-
   return (
     <>
     <div id='lists' className='d-flex'>

@@ -14,7 +14,8 @@ function Login() {
         })
         .then((response) => {
             if(response.status === 200) {
-                localStorage.setItem('budget-app-user', JSON.stringify(response.data));
+                console.log("initial accesstoken", response.data.accesstoken)
+                localStorage.setItem('budget-app-accesstoken', response.data.accesstoken);
                 window.location.href='/';
             }
         })

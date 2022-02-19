@@ -30,14 +30,19 @@ function Home() {
 
   // add-item
   const addItem = (event) => {
-    const user = JSON.parse(localStorage.getItem('budget-app-user'))
     event.preventDefault()
-    console.log(user.username)
-    axios.post(ADD_API , {
-        "category" : event.target[0].value,
-        "desc" : event.target[1].value,
-        "amount" : event.target[2].value,
-        "username" : user.username
+    const accesstoken = localStorage.getItem('budget-app-accesstoken');
+    console.log(accesstoken)
+    axios.post(ADD_API, {
+      "category" : event.target[0].value,
+      "desc" : event.target[1].value,
+      "amount" : event.target[2].value
+    }, {
+      method: 'POST',
+      headers: {
+        accesstoken: accesstoken,
+      },
+
     })
     .then((response) => {
         if(response.status === 200) {
@@ -51,21 +56,31 @@ function Home() {
 
   // delete-item
   const deleteItem = (_id) => {
-    axios.post(DELETE_API, {
-      _id: _id,
+    console.log(_id);
+    const accesstoken = localStorage.getItem('budget-app-accesstoken') ;
+    console.log(accesstoken);
+    axios.post(DELETE_API, null, {
+      method: 'POST',
+      headers: {
+        accesstoken: accesstoken,
+        _id: _id
+      }
     })
+    .then(res => console.log(res))
+    .catch(err => console.log("catch block", err))
   }
 
   // USEEFFECT //
   useEffect(() => {
-    if(!localStorage.getItem('budget-app-user')) {
+    if(!localStorage.getItem('budget-app-accesstoken')) {
       window.location.href='/login';
     }
-    const user = JSON.parse(localStorage.getItem('budget-app-user'));
+    
+    const accesstoken = localStorage.getItem('budget-app-accesstoken') ;
     fetch(GETALL_API, {
       method: 'GET',
       headers: {
-        username: user.username
+        accesstoken: accesstoken
       }
     })
     .then((res) => res.json())

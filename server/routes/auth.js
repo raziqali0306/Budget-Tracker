@@ -1,5 +1,6 @@
 const router = require('express').Router();
 const argon = require('argon2');
+const jwt = require('jsonwebtoken');
 const User = require('../models/userModel.js');
 
 // REGISTER
@@ -31,12 +32,18 @@ router.post('/login', async (req, res) => {
     if (user) {
       if (await argon.verify(user.password, req.body.password)) {
         const { password, ...others } = user._doc;
+
+        const accesstoken = jwt.sign(
+          { username: user.username, email: user.email },
+          process.env.PAYLOAD,
+        );
+        others['accesstoken'] = accesstoken;
         res.status(200).json(others);
       } else {
         res.status(400).json('Wrong Credentials');
       }
     } else {
-      res.status(404).json('user not found');
+      res.status(404).json('User not found');
     }
   } catch (err) {
     res.status(500).json(err);
